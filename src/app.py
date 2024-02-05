@@ -11,7 +11,7 @@ load_dotenv()
 
 db_engine = create_engine(settings.get_db_uri())
 get_session = sessionmaker(bind=db_engine)
-orm.start_mappers(bind=db_engine)
+print(orm.start_mappers(bind=db_engine))
 
 
 def get_db():
@@ -23,11 +23,11 @@ def get_db():
 
 
 session = get_session()
-dep = model.Departament("Офис", None)
+dep = model.Departament(1, "Офис", None)
 session.add(dep)
 role = model.Role("Програмист")
 session.add(role)
-emp = model.Employee("Maxim", "Ageev", 123456, dep, role)
+emp = model.Employee(1, "Maxim", "Ageev", 123456, role, dep, None)
 session.add(emp)
 
 start_status = model.Status("start", is_working=False)

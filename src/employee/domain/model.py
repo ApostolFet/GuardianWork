@@ -20,6 +20,13 @@ class HistoryStatus:
     set_at: datetime
 
 
+@dataclass(unsafe_hash=True)
+class AvailibleStatus:
+    role: Role
+    status: Status
+    availible_status: Status
+
+
 class StatusNotAvailibleError(Exception):
     pass
 
@@ -36,14 +43,18 @@ class Employee:
         last_name: str,
         telegram_id: int,
         role: Role,
+        departament: "Departament",
+        stastus_id: Optional[int],
     ):
-        self._id = id
+        self.id = id
         self.first_name = first_name
         self.last_name = last_name
         self.tg_id = telegram_id
         self.role = role
+        self.departament = departament
         self._history_status: list[HistoryStatus] = list()
         self._availible_statuses: set[Status] = set()
+        self.status_id = stastus_id
 
     def __repr__(self) -> str:
         return f"{self.first_name} {self.last_name}"
@@ -51,10 +62,10 @@ class Employee:
     def __eq__(self, other):
         if not isinstance(other, Employee):
             return False
-        return other._id == self._id
+        return other.id == self.id
 
     def __hash__(self):
-        return hash(self._id)
+        return hash(self.id)
 
     @property
     def status(self) -> Optional[Status]:
@@ -78,13 +89,11 @@ class Employee:
         return self._history_status[-1]
 
 
-T = TypeVar("T", bound="Departament")
-
-
 class Departament:
-    def __init__(self, id: int, title: str) -> None:
-        self._id = id
+    def __init__(self, id: int, title: str, parent_id: Optional[int]) -> None:
+        self.id = id
         self.title = title
+        self._parent_id = parent_id
         self._employees: set[Employee] = set()
         self._managers: set[Employee] = set()
         self._child_departments: set[Departament] = set()
@@ -95,10 +104,10 @@ class Departament:
     def __eq__(self, other):
         if not isinstance(other, Departament):
             return False
-        return other._id == self._id
+        return other.id == self.id
 
     def __hash__(self):
-        return hash(self._id)
+        return hash(self.id)
 
     def add_employee(self, employee: Employee):
         self._employees.add(employee)
@@ -112,10 +121,12 @@ class Departament:
     def remove_manager(self, employee: Employee):
         self._managers.remove(employee)
 
-    def add_child_departament(self, departanent: T):
-        self._child_departments.add(departanent)
+    def add_child_departament(self, departament: "Departament"):
+        departament._parent_id = self._id
+        self._child_departments.add(departament)
 
-    def remove_child_departament(self, departament: T):
+    def remove_child_departament(self, departament: "Departament"):
+        departament._parent_id = None
         self._child_departments.remove(departament)
 
     def get_employees(self, requesting_employee: Employee):
