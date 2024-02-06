@@ -1,6 +1,7 @@
 import pytest
 
 from src.employee.domain.model import (
+    Departament,
     Employee,
     Role,
     Status,
@@ -9,14 +10,16 @@ from src.employee.domain.model import (
 
 
 def create_employee():
+    dep = Departament("FFru")
     role = Role("Програмист")
-    emp = Employee(1, "Maxim", "Ageev", 123456, role)
 
     start_status = Status("start", is_working=False)
     work = Status("work", is_working=True)
     end_status = Status("end", is_working=True)
 
-    emp._availible_statuses = set([start_status, work, end_status])
+    emp = Employee("Maxim", "Ageev", 123456, role, dep, start_status)
+
+    emp._availible_statuses = set([work, end_status])
 
     return emp
 
