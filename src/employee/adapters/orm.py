@@ -8,8 +8,6 @@ from sqlalchemy import (
     Integer,
     String,
     func,
-    select,
-    and_,
 )
 from sqlalchemy.orm import registry, relationship
 
@@ -78,12 +76,14 @@ availible_statuses = Table(
 )
 
 
-def start_mappers(bind):
+def start_mappers():
     logger.info("Start mapping")
     dep_mapper = mapper_registry.map_imperatively(
         model.Departament,
         departaments,
         properties={
+            "_id": departaments.c.id,
+            "_parent_id": departaments.c.parent_id,
             "_managers": relationship(
                 model.Employee,
                 secondary=managers_departaments,
@@ -97,7 +97,7 @@ def start_mappers(bind):
                 model.Employee,
                 collection_class=set,
                 back_populates="departament",
-                primaryjoin="model.Departament.id == model.Employee.departament_id",
+                primaryjoin="model.Departament._id == model.Employee.departament_id",
             ),
         },
     )
@@ -112,7 +112,7 @@ def start_mappers(bind):
         properties={"status": relationship(status_mapper)},
     )
 
-    availible_statuses_mapper = mapper_registry.map_imperatively(
+    mapper_registry.map_imperatively(
         model.AvailibleStatus,
         availible_statuses,
         properties={
@@ -132,12 +132,16 @@ def start_mappers(bind):
         model.Employee,
         employees,
         properties={
+            "_id": employees.c.id,
             "role": relationship(role_mapper),
             "departament": relationship(
                 dep_mapper,
                 back_populates="_employees",
                 uselist=False,
-                primaryjoin="model.Departament.id == model.Employee.departament_id",
+                primaryjoin="model.Departament._id == model.Employee.departament_id",
+            ),
+            "_status": relationship(
+                status_mapper,
             ),
             "_history_status": relationship(
                 history_status_mapper,
@@ -153,6 +157,3 @@ def start_mappers(bind):
             ),
         },
     )
-    # mapper_registry.metadata.drop_all(bind, checkfirst=False)
-    mapper_registry.metadata.create_all(bind)
-    return True

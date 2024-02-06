@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, TypeVar
+from typing import Optional
 
 
 @dataclass(unsafe_hash=True)
@@ -38,23 +38,23 @@ class EmployeePermissonError(Exception):
 class Employee:
     def __init__(
         self,
-        id: int,
         first_name: str,
         last_name: str,
         telegram_id: int,
         role: Role,
         departament: "Departament",
-        stastus_id: Optional[int],
+        status: Status,
+        id: Optional[int] = None,
     ):
-        self.id = id
         self.first_name = first_name
         self.last_name = last_name
         self.tg_id = telegram_id
         self.role = role
         self.departament = departament
+        self._id = id
+        self._status = status
         self._history_status: list[HistoryStatus] = list()
         self._availible_statuses: set[Status] = set()
-        self.status_id = stastus_id
 
     def __repr__(self) -> str:
         return f"{self.first_name} {self.last_name}"
@@ -62,21 +62,20 @@ class Employee:
     def __eq__(self, other):
         if not isinstance(other, Employee):
             return False
-        return other.id == self.id
+        return other._id == self._id
 
     def __hash__(self):
-        return hash(self.id)
+        return hash(self._id)
 
     @property
     def status(self) -> Optional[Status]:
-        if self.last_status is None:
-            return None
-        return self.last_status.status
+        return self._status
 
     @status.setter
     def status(self, status: Status):
         if status not in self._availible_statuses:
             raise StatusNotAvailibleError("Unavailible status: {}".format(status.title))
+        self._status = status
         self._history_status.append(HistoryStatus(status=status, set_at=datetime.now()))
 
     def get_available_statuses(self) -> set[Status]:
@@ -90,9 +89,14 @@ class Employee:
 
 
 class Departament:
-    def __init__(self, id: int, title: str, parent_id: Optional[int]) -> None:
-        self.id = id
+    def __init__(
+        self,
+        title: str,
+        id: Optional[int] = None,
+        parent_id: Optional[int] = None,
+    ) -> None:
         self.title = title
+        self._id = id
         self._parent_id = parent_id
         self._employees: set[Employee] = set()
         self._managers: set[Employee] = set()
@@ -104,10 +108,10 @@ class Departament:
     def __eq__(self, other):
         if not isinstance(other, Departament):
             return False
-        return other.id == self.id
+        return other._id == self._id
 
     def __hash__(self):
-        return hash(self.id)
+        return hash(self._id)
 
     def add_employee(self, employee: Employee):
         self._employees.add(employee)
