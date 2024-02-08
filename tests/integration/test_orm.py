@@ -88,10 +88,19 @@ def test_retrieving_availible_statuses(session):
         )
     )
 
-    employee = session.query(model.Employee).one()
-
-    # start_status = model.Status("Начать смену", False)
+    start_status = model.Status("Начать смену", False)
     woring_status = model.Status("Работаю", True)
     end_status = model.Status("Закончить смену", False)
 
+    employee = session.query(model.Employee).one()
     assert employee._availible_statuses == {woring_status, end_status}
+
+    session.execute(text("UPDATE employees  SET status_id = 2 WHERE id = 1"))
+    session.commit()
+
+    assert employee._availible_statuses == {end_status}
+
+    session.execute(text("UPDATE employees SET status_id = 3 WHERE id = 1"))
+    session.commit()
+
+    assert employee._availible_statuses == {start_status}
