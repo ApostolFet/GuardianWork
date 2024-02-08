@@ -36,6 +36,7 @@ statuses = Table(
     "statuses",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("title", String(255), nullable=False),
     Column("is_working", Boolean, nullable=False),
 )
 
@@ -151,7 +152,7 @@ def start_mappers():
                 status_mapper,
                 secondary=availible_statuses,
                 secondaryjoin="and_(model.Employee.role_id == model.AvailibleStatus.role_id, model.Employee.status_id == model.AvailibleStatus.status_id)",
-                primaryjoin="model.AvailibleStatus.status_id == model.Status.id",
+                primaryjoin="model.AvailibleStatus.availible_status_id == model.Status.id",
                 collection_class=set,
                 viewonly=True,
             ),
