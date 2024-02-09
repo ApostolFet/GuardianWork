@@ -83,13 +83,8 @@ def test_mapper_can_save_departaments(session):
     org = model.Departament("Организация", 1)
     session.add(org)
     sklad = model.Departament("Склад")
-    session.add(sklad)
-    session.commit()
     sale = model.Departament("Продажи")
-    session.add(sale)
-    session.commit()
     org._child_departments = {sklad, sale}
-
     session.commit()
 
     rows = list(
