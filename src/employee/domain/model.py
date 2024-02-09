@@ -40,7 +40,7 @@ class Employee:
         self,
         first_name: str,
         last_name: str,
-        telegram_id: int,
+        tg_id: int,
         role: Role,
         departament: "Departament",
         status: Status,
@@ -48,7 +48,7 @@ class Employee:
     ):
         self.first_name = first_name
         self.last_name = last_name
-        self.tg_id = telegram_id
+        self.tg_id = tg_id
         self.role = role
         self.departament = departament
         self._id = id
