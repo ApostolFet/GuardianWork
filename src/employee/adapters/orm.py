@@ -40,14 +40,6 @@ statuses = Table(
     Column("is_working", Boolean, nullable=False),
 )
 
-history_status = Table(
-    "history_status",
-    mapper_registry.metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("status_id", Integer, ForeignKey("statuses.id")),
-    Column("employee_id", Integer, ForeignKey("employees.id")),
-    Column("set_at", DateTime, default=func.now()),
-)
 
 employees = Table(
     "employees",
@@ -61,19 +53,29 @@ employees = Table(
     Column("status_id", Integer, ForeignKey("statuses.id"), nullable=True),
 )
 
-managers_departaments = Table(
-    "managers_departaments",
-    mapper_registry.metadata,
-    Column("departament_id", ForeignKey("departaments.id"), primary_key=True),
-    Column("employee_id", ForeignKey("employees.id"), primary_key=True),
-)
-
 availible_statuses = Table(
     "availible_statuses",
     mapper_registry.metadata,
     Column("role_id", ForeignKey("roles.id"), primary_key=True),
     Column("status_id", ForeignKey("statuses.id"), primary_key=True),
     Column("availible_status_id", ForeignKey("statuses.id"), primary_key=True),
+)
+
+history_status = Table(
+    "history_status",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("status_id", Integer, ForeignKey("statuses.id")),
+    Column("employee_id", Integer, ForeignKey("employees.id")),
+    Column("set_at", DateTime, default=func.now()),
+)
+
+
+managers_departaments = Table(
+    "managers_departaments",
+    mapper_registry.metadata,
+    Column("departament_id", ForeignKey("departaments.id"), primary_key=True),
+    Column("employee_id", ForeignKey("employees.id"), primary_key=True),
 )
 
 
@@ -84,7 +86,6 @@ def start_mappers():
         departaments,
         properties={
             "_id": departaments.c.id,
-            "_parent_id": departaments.c.parent_id,
             "_managers": relationship(
                 model.Employee,
                 secondary=managers_departaments,

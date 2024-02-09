@@ -93,11 +93,9 @@ class Departament:
         self,
         title: str,
         id: Optional[int] = None,
-        parent_id: Optional[int] = None,
     ) -> None:
         self.title = title
         self._id = id
-        self._parent_id = parent_id
         self._employees: set[Employee] = set()
         self._managers: set[Employee] = set()
         self._child_departments: set[Departament] = set()
@@ -126,11 +124,9 @@ class Departament:
         self._managers.remove(employee)
 
     def add_child_departament(self, departament: "Departament"):
-        departament._parent_id = self._id
         self._child_departments.add(departament)
 
     def remove_child_departament(self, departament: "Departament"):
-        departament._parent_id = None
         self._child_departments.remove(departament)
 
     def get_employees(self, requesting_employee: Employee):
