@@ -62,9 +62,14 @@ class Employee:
     def __eq__(self, other):
         if not isinstance(other, Employee):
             return False
+
+        if self._id is None:
+            return id(self) == id(other)
         return other._id == self._id
 
     def __hash__(self):
+        if self._id is None:
+            return id(self)
         return hash(self._id)
 
     @property
@@ -106,9 +111,13 @@ class Departament:
     def __eq__(self, other):
         if not isinstance(other, Departament):
             return False
+        if self._id is None:
+            return id(other) == id(self)
         return other._id == self._id
 
     def __hash__(self):
+        if self._id is None:
+            return id(self)
         return hash(self._id)
 
     def add_employee(self, employee: Employee):
