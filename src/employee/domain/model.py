@@ -6,12 +6,14 @@ from typing import Optional
 @dataclass(unsafe_hash=True)
 class Role:
     title: str
+    id: Optional[int] = None
 
 
 @dataclass(unsafe_hash=True)
 class Status:
     title: str
     is_working: bool
+    id: Optional[int] = None
 
 
 @dataclass(unsafe_hash=True)
@@ -43,7 +45,7 @@ class Employee:
         tg_id: int,
         role: Role,
         departament: "Departament",
-        status: Status,
+        status: Optional[Status] = None,
         id: Optional[int] = None,
     ):
         self.first_name = first_name
@@ -138,7 +140,7 @@ class Departament:
     def remove_child_departament(self, departament: "Departament"):
         self._child_departments.remove(departament)
 
-    def get_employees(self, requesting_employee: Employee):
+    def get_employees(self, requesting_employee: Employee) -> set[Employee]:
         if requesting_employee not in self._managers:
             raise EmployeePermissonError(
                 f"У пользователя {requesting_employee} не достаточно прав"

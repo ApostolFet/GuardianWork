@@ -12,9 +12,9 @@ def test_mapper_can_load_roles(session):
         )
     )
     expected = [
-        model.Role("Управляющий"),
-        model.Role("Менеджер"),
-        model.Role("Сотрудник"),
+        model.Role("Управляющий", 1),
+        model.Role("Менеджер", 2),
+        model.Role("Сотрудник", 3),
     ]
     assert session.query(model.Role).all() == expected
 
@@ -39,9 +39,9 @@ def test_can_load_statuses(session):
         )
     )
     expected = [
-        model.Status("Начать смену", is_working=False),
-        model.Status("Работаю", is_working=True),
-        model.Status("Закончить смену", is_working=False),
+        model.Status("Начать смену", is_working=False, id=1),
+        model.Status("Работаю", is_working=True, id=2),
+        model.Status("Закончить смену", is_working=False, id=3),
     ]
     assert session.query(model.Status).all() == expected
 
@@ -168,9 +168,9 @@ def test_retrieving_availible_statuses(session):
         )
     )
 
-    start_status = model.Status("Начать смену", False)
-    working_status = model.Status("Работаю", True)
-    end_status = model.Status("Закончить смену", False)
+    start_status = model.Status("Начать смену", False, id=1)
+    working_status = model.Status("Работаю", True, id=2)
+    end_status = model.Status("Закончить смену", False, id=3)
 
     employee = session.query(model.Employee).one()
     assert employee._availible_statuses == {working_status, end_status}
