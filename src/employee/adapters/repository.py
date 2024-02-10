@@ -1,6 +1,9 @@
 import abc
+from typing import TypeVar
 
 from src.employee.domain.model import Employee
+
+T = TypeVar("T")
 
 
 class AbstractRepository(abc.ABC):
@@ -9,7 +12,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, model, model_id):
+    def get(self, model: T, model_id: int) -> T:
         raise NotImplementedError
 
     @abc.abstractmethod
