@@ -4,13 +4,22 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     bot_token: str
 
 
+class DataBaseSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="db_",
+        extra="ignore",
+    )
+    host: str
+    user: str
+    password: str
+    name: str
+
+
 def get_db_uri():
-    host = os.environ.get("DB_HOST")
-    user = os.environ.get("DB_USER")
-    password = os.environ.get("DB_PASS")
-    db_name = os.environ.get("DB_NAME")
-    return f"postgresql://{user}:{password}@{host}/{db_name}"
+    db_settings = DataBaseSettings()
+    return f"postgresql://{db_settings.user}:{db_settings.password}@{db_settings.host}/{db_settings.name}"
