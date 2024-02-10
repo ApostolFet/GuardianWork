@@ -1,47 +1,31 @@
 import abc
 
-from src.employee.domain import model
+from src.employee.domain.model import Employee
 
 
-class AbstractEmployeeRepository(abc.ABC):
+class AbstractRepository(abc.ABC):
     @abc.abstractmethod
-    def add(self, employee: model.Employee):
+    def add(self, model):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, tg_id: int) -> model.Employee:
-        raise NotImplementedError
-
-
-class AbstractDepartamentRepository(abc.ABC):
-    @abc.abstractmethod
-    def add(self, departament: model.Departament):
+    def get(self, model, model_id):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, manager_id: int) -> list[model.Departament]:
+    def get_employee_by_tg_id(self, tg_id: int) -> Employee:
         raise NotImplementedError
 
 
-class SqlAlchemyEmployeeRepository(AbstractEmployeeRepository):
+class SqlAlchemyRepository(AbstractRepository):
     def __init__(self, session):
         self.session = session
 
-    def add(self, employee):
-        self.session.add(employee)
+    def add(self, model):
+        self.session.add(model)
 
-    def get(self, tg_id):
-        return self.session.query(model.Employee).filter_by(tg_id=tg_id).one()
+    def get(self, model, model_id):
+        return self.session.query(model).filter_by(id=model_id).one()
 
-
-class SqlAlchemyDepartamentRepository(AbstractDepartamentRepository):
-    def __init__(self, session):
-        self.session = session
-
-    def add(self, departament):
-        self.session.add(departament)
-
-    def get(self, manager_id):
-        return (
-            self.session.query(model.Departament).filter_by(manager_id=manager_id).all()
-        )
+    def get_employee_by_tg_id(self, tg_id):
+        return self.session.query(Employee).filter_by(tg_id=tg_id).one()
