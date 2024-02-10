@@ -14,18 +14,29 @@ def add_employee(
     with uow:
         role = uow.repo.get(model.Role, role_id)
         departament = uow.repo.get(model.Departament, departament_id)
+        default_status = uow.repo.get(model.Status, 0)
         new_employee = model.Employee(
             first_name=first_name,
             last_name=last_name,
             tg_id=tg_id,
             role=role,
-            status=model.Status("Зарегестрирован", is_working=False),
+            status=default_status,
             departament=departament,
         )
         uow.repo.add(new_employee)
-        new_employee_id = new_employee._id
         uow.commit()
+        new_employee_id = new_employee.id
     return new_employee_id
+
+
+def add_manager_departament(
+    departament_id: int, employee_id: int, uow: AbstractUnitOfWork
+):
+    with uow:
+        departament = uow.repo.get(model.Departament, departament_id)
+        employee = uow.repo.get(model.Employee, employee_id)
+        departament.add_manager(employee=employee)
+        uow.commit()
 
 
 def get_availible_statuses(
