@@ -53,7 +53,7 @@ class Employee:
         self.tg_id = tg_id
         self.role = role
         self.departament = departament
-        self._id = id
+        self.id = id
         self._status = status
         self._history_status: list[HistoryStatus] = list()
         self._availible_statuses: set[Status] = set()
@@ -65,14 +65,14 @@ class Employee:
         if not isinstance(other, Employee):
             return False
 
-        if self._id is None:
+        if self.id is None:
             return id(self) == id(other)
-        return other._id == self._id
+        return other.id == self.id
 
     def __hash__(self):
-        if self._id is None:
+        if self.id is None:
             return id(self)
-        return hash(self._id)
+        return hash(self.id)
 
     @property
     def status(self) -> Optional[Status]:
@@ -102,7 +102,7 @@ class Departament:
         id: Optional[int] = None,
     ) -> None:
         self.title = title
-        self._id = id
+        self.id = id
         self._employees: set[Employee] = set()
         self._managers: set[Employee] = set()
         self._child_departments: set[Departament] = set()
@@ -113,14 +113,14 @@ class Departament:
     def __eq__(self, other):
         if not isinstance(other, Departament):
             return False
-        if self._id is None:
+        if self.id is None:
             return id(other) == id(self)
-        return other._id == self._id
+        return other.id == self.id
 
     def __hash__(self):
-        if self._id is None:
+        if self.id is None:
             return id(self)
-        return hash(self._id)
+        return hash(self.id)
 
     def add_employee(self, employee: Employee):
         self._employees.add(employee)
