@@ -7,6 +7,7 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
+    BigInteger,
     func,
 )
 from sqlalchemy.orm import registry, relationship
@@ -45,7 +46,7 @@ employees = Table(
     "employees",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("tg_id", Integer),
+    Column("tg_id", BigInteger),
     Column("first_name", String(255), nullable=False),
     Column("last_name", String(255), nullable=False),
     Column("departament_id", Integer, ForeignKey("departaments.id")),
