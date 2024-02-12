@@ -115,8 +115,8 @@ async def get_active_employees_departament_handler(message: Message) -> None:
             status_set_at = last_status.set_at.strftime("%d.%m.%Y %H:%M")
         text += (
             f"Сотрудник: {hbold(employee.first_name)} {hbold(employee.last_name)}\n"
-            f"Роль: {employee.role.title}"
-            f"Департамент: {employee.departament.title}"
+            f"Роль: {employee.role.title}\n"
+            f"Департамент: {employee.departament.title}\n"
             f"Статус: {hbold(status_title)}\n"
             f"Был изменен в: {status_set_at}\n\n"
         )
