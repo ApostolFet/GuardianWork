@@ -1,3 +1,4 @@
+from typing import Optional
 from src.employee.adapters.repository import AbstractRepository
 from src.employee.domain import model
 from src.employee.service_layer.unit_of_work import AbstractUnitOfWork
@@ -37,6 +38,14 @@ def add_manager_departament(
         employee = uow.repo.get(model.Employee, employee_id)
         departament.add_manager(employee=employee)
         uow.commit()
+
+
+def get_last_status_employee(
+    tg_id: int,
+    repo: AbstractRepository,
+) -> Optional[model.HistoryStatus]:
+    employee = repo.get_employee_by_tg_id(tg_id)
+    return employee.last_status
 
 
 def get_availible_statuses(
