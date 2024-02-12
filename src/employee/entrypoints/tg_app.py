@@ -1,10 +1,6 @@
-import asyncio
 from enum import Enum
-import logging
-import sys
 
-from aiogram import F, Bot, Dispatcher, Router, types
-from aiogram.enums import ParseMode
+from aiogram import F, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.types.callback_query import CallbackQuery
@@ -16,10 +12,10 @@ from aiogram.filters.callback_data import CallbackData
 from src.employee.adapters.repository import SqlAlchemyRepository
 from src.employee.domain.model import StatusNotAvailibleError
 
-from src.settings import Settings
 from src.employee.service_layer.services import (
     get_active_employees_departaments,
     get_availible_statuses,
+    get_last_status_employee,
     set_status_employee,
 )
 from src.employee.service_layer.unit_of_work import (
@@ -59,9 +55,12 @@ async def command_start_handler(message: Message) -> None:
 @employee_router.message(choice_availible_status_command)
 async def choise_status_handler(message: Message) -> None:
     tg_id = message.chat.id
-    statuses_inline_keyboard = get_availible_statuses_inline_keyboard(tg_id)
+    (
+        text,
+        statuses_inline_keyboard,
+    ) = get_availible_statuses_inline_keyboard(tg_id)
     await message.answer(
-        "Выберите статус из доступных:",
+        text,
         reply_markup=statuses_inline_keyboard,
     )
 
@@ -86,8 +85,13 @@ async def set_status_handler(
         await query.message.delete()
     else:
         await query.answer("Статус успешно изменен")
-        statuses_inline_keyboard = get_availible_statuses_inline_keyboard(tg_id)
-        await query.message.edit_reply_markup(
+        (
+            text,
+            statuses_inline_keyboard,
+        ) = get_availible_statuses_inline_keyboard(tg_id)
+
+        await query.message.edit_text(
+            text,
             reply_markup=statuses_inline_keyboard,
         )
 
@@ -110,21 +114,29 @@ async def get_active_employees_departament_handler(message: Message) -> None:
             status_title = last_status.status.title
             status_set_at = last_status.set_at.strftime("%d.%m.%Y %H:%M")
         text += (
-            f"Сотрудник: {employee.first_name} {employee.last_name}\n"
-            f"Статус: {status_title}\n"
+            f"Сотрудник: {hbold(employee.first_name)} {hbold(employee.last_name)}\n"
+            f"Роль: {employee.role.title}"
+            f"Департамент: {employee.departament.title}"
+            f"Статус: {hbold(status_title)}\n"
             f"Был изменен в: {status_set_at}\n\n"
         )
     session.close()
     await message.answer(text)
 
 
-def get_availible_statuses_inline_keyboard(tg_id: int):
+def get_availible_statuses_inline_keyboard(
+    tg_id: int,
+) -> tuple[str, InlineKeyboardMarkup]:
     session = DEFAULT_SESSION_FACTORY()
+    repo = SqlAlchemyRepository(session)
     availible_statuses = get_availible_statuses(
         tg_id,
-        repo=SqlAlchemyRepository(session),
+        repo=repo,
     )
-    availible_statuses = sorted(list(availible_statuses), key=id)
+    availible_statuses = sorted(
+        list(availible_statuses),
+        key=lambda status: status.id,
+    )
     keyboard = []
     for status in availible_statuses:
         set_status_callback = EmployeeCallbackData(
@@ -135,19 +147,22 @@ def get_availible_statuses_inline_keyboard(tg_id: int):
             text=status.title, callback_data=set_status_callback.pack()
         )
         keyboard.append([status_button])
-    session.close()
     inline_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-    return inline_markup
 
-
-async def main() -> None:
-    # Initialize Bot instance with a default parse mode which will be passed to all API calls
-    settings = Settings()
-    bot = Bot(settings.bot_token, parse_mode=ParseMode.HTML)
-    # And the run events dispatching
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    asyncio.run(main())
+    last_status = get_last_status_employee(
+        tg_id,
+        repo,
+    )
+    if last_status is None:
+        status_title = "Не установлен"
+        status_set_at = ""
+    else:
+        status_title = last_status.status.title
+        status_set_at = last_status.set_at.strftime("%d.%m.%Y %H:%M")
+    text = (
+        f"Актвный статус: {hbold(status_title)}\n"
+        f"Был изменен в: {hbold(status_set_at)}\n\n"
+        "Выберите статус из доступных:"
+    )
+    session.close()
+    return text, inline_markup
