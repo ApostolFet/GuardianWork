@@ -151,8 +151,8 @@ def start_mappers():
             "_availible_statuses": relationship(
                 status_mapper,
                 secondary=availible_statuses,
-                secondaryjoin="and_(model.Employee.role_id == model.AvailibleStatus.role_id, model.Employee.status_id == model.AvailibleStatus.status_id)",
-                primaryjoin="model.AvailibleStatus.availible_status_id == model.Status.id",
+                primaryjoin="and_(model.Employee.role_id == model.AvailibleStatus.role_id, model.Employee.status_id == model.AvailibleStatus.status_id)",
+                secondaryjoin="model.AvailibleStatus.availible_status_id == model.Status.id",
                 collection_class=set,
                 viewonly=True,
             ),
