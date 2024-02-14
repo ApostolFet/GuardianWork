@@ -160,7 +160,7 @@ def get_availible_statuses_inline_keyboard(
         status_title = last_status.status.title
         status_set_at = last_status.set_at.strftime("%d.%m.%Y %H:%M")
     text = (
-        f"Актвный статус: {hbold(status_title)}\n"
+        f"Активный статус: {hbold(status_title)}\n"
         f"Был изменен в: {hbold(status_set_at)}\n\n"
         "Выберите статус из доступных:"
     )
