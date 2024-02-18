@@ -146,6 +146,7 @@ def start_mappers():
             ),
             "_history_status": relationship(
                 history_status_mapper,
+                order_by="model.HistoryStatus.set_at",
                 collection_class=list,
             ),
             "_availible_statuses": relationship(
